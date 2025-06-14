@@ -1,34 +1,21 @@
 cmake_minimum_required(VERSION 3.10)
-project(GraphicalCalculator)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+file(GLOB TEST_SOURCES *.cpp)
 
-set(SFML_DIR "C:/SFML-2.6.1/lib/cmake/SFML")
-find_package(SFML 2.6 COMPONENTS graphics window system REQUIRED)
+# Создаем тестовый исполняемый файл
+add_executable(GraphicalCalculatorTests ${TEST_SOURCES})
 
-add_library(calculator_math src/calculator_math.cpp)
-target_include_directories(calculator_math PUBLIC include)
-
-add_executable(GraphicalCalculator src/main.cpp)
-target_link_libraries(GraphicalCalculator
-    sfml-graphics
-    sfml-window
-    sfml-system
-    calculator_math  
+# Подключаем нашу библиотеку и заголовки
+target_link_libraries(GraphicalCalculatorTests
+    PRIVATE calculator_math
 )
 
-add_custom_command(TARGET GraphicalCalculator POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "C:/SFML-2.6.1/bin/sfml-graphics-d-2.dll"
-        $<TARGET_FILE_DIR:GraphicalCalculator>
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "C:/SFML-2.6.1/bin/sfml-window-d-2.dll"
-        $<TARGET_FILE_DIR:GraphicalCalculator>
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "C:/SFML-2.6.1/bin/sfml-system-d-2.dll"
-        $<TARGET_FILE_DIR:GraphicalCalculator>
+# Указываем пути к заголовочным файлам
+target_include_directories(GraphicalCalculatorTests
+    PRIVATE 
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/external/doctest
 )
 
-enable_testing()
-add_subdirectory(tests)
+# Регистрируем тест для CTest
+add_test(NAME GraphicalCalculatorTests COMMAND GraphicalCalculatorTests)
